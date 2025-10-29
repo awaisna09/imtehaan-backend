@@ -14,5 +14,9 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
+# Set environment variables
+ENV PORT=8000
+ENV HOST=0.0.0.0
+
 # Start the application
 CMD ["python", "start.py"]
