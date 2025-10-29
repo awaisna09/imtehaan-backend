@@ -1,36 +1,28 @@
 #!/bin/bash
-echo "🚀 Starting Imtehaan AI EdTech Platform"
-echo "📁 Complete build with all files included"
-echo ""
 
-# Check if config.env exists
-if [ ! -f "config.env" ]; then
-    echo "⚠️  config.env not found, copying from example..."
-    cp config.env.example config.env
-    echo "📝 Please update config.env with your settings"
+# Railway startup script for Imtehaan AI EdTech Platform Backend
+
+echo "🚀 Starting Imtehaan AI EdTech Platform Backend"
+
+# Check if python3 exists, otherwise use python
+if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+else
+    echo "❌ Python not found!"
+    exit 1
 fi
 
-# Start backend
-echo "🔧 Starting backend..."
-python unified_backend.py &
-BACKEND_PID=$!
+echo "📍 Using Python command: $PYTHON_CMD"
 
-# Wait for backend to start
-sleep 5
+# Get port from Railway environment variable
+PORT=${PORT:-8000}
+HOST=${HOST:-0.0.0.0}
 
-# Start frontend (if built)
-if [ -d "dist" ]; then
-    echo "🌐 Starting frontend..."
-    npx serve -s dist -l 3000 &
-    FRONTEND_PID=$!
-    echo "✅ Frontend running on http://localhost:3000"
-fi
+echo "🌐 Host: $HOST"
+echo "🔌 Port: $PORT"
+echo "🌍 Environment: ${RAILWAY_ENVIRONMENT:-production}"
 
-echo "✅ Backend running on http://localhost:8000"
-echo "📖 API docs: http://localhost:8000/docs"
-echo ""
-echo "Press Ctrl+C to stop all services"
-
-# Wait for interrupt
-trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" INT
-wait
+# Start the server
+exec $PYTHON_CMD unified_backend.py

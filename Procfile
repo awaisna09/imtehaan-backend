@@ -1,1 +1,1 @@
-web: python unified_backend.py
+web: chmod +x start.sh && ./start.sh
