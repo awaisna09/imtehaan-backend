@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # Backend AI Tutor Service
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-imtehaan-ai-tutor}
+      - HOST=0.0.0.0
+      - PORT=8000
+    volumes:
+      - ./logs:/app/logs
+      - ./backend-build:/app
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - imtehaan-network
+
+  # Frontend React App
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_API_BASE_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - imtehaan-network
+
+  # Development Frontend (for development)
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+      - VITE_API_BASE_URL=http://localhost:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    profiles:
+      - dev
+    networks:
+      - imtehaan-network
+
+  # Supabase (if running locally)
+  supabase:
+    image: supabase/postgres:15.1.0.117
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: your-super-secret-and-long-postgres-password
+      POSTGRES_DB: postgres
+    volumes:
+      - supabase_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - imtehaan-network
+    profiles:
+      - local-db
+
+networks:
+  imtehaan-network:
+    driver: bridge
+
+volumes:
+  supabase_data:
