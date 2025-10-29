@@ -34,6 +34,15 @@ except ImportError:
     MockExamGradingAgent = None
     ExamReport = None
     QuestionGrade = None
+    # Provide a minimal fallback so type references below don't crash import
+    class GradingResult(BaseModel):  # type: ignore
+        overall_score: float = 0.0
+        percentage: float = 0.0
+        grade: str = "N/A"
+        strengths: List[str] = []
+        areas_for_improvement: List[str] = []
+        specific_feedback: str = ""
+        suggestions: List[str] = []
     print("Grading agent not available - grading endpoints will be disabled")
 
 # Configuration with better error handling
