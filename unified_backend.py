@@ -29,7 +29,8 @@ try:
     from answer_grading_agent import AnswerGradingAgent, GradingResult
     from mock_exam_grading_agent import MockExamGradingAgent, ExamReport, QuestionGrade
     GRADING_AVAILABLE = True
-except ImportError:
+    print("✅ Grading agents imported successfully")
+except ImportError as e:
     GRADING_AVAILABLE = False
     MockExamGradingAgent = None
     ExamReport = None
@@ -43,6 +44,7 @@ except ImportError:
         areas_for_improvement: List[str] = []
         specific_feedback: str = ""
         suggestions: List[str] = []
+    print(f"❌ Grading agent import failed: {e}")
     print("Grading agent not available - grading endpoints will be disabled")
 
 # Configuration with better error handling
@@ -284,8 +286,12 @@ async def startup_event():
     """Initialize services on startup"""
     global grading_agent, mock_exam_grading_agent
     
+    print(f"🔧 GRADING_AVAILABLE: {GRADING_AVAILABLE}")
+    print(f"🔧 OPENAI_API_KEY present: {bool(OPENAI_API_KEY)}")
+    
     if GRADING_AVAILABLE:
         try:
+            print("🚀 Initializing Answer Grading Agent...")
             # Pass grading configuration to the answer grading agent
             grading_agent = AnswerGradingAgent(
                 api_key=OPENAI_API_KEY,
@@ -300,10 +306,13 @@ async def startup_event():
             
             # Initialize mock exam grading agent
             if MockExamGradingAgent:
+                print("🚀 Initializing Mock Exam Grading Agent...")
                 mock_exam_grading_agent = MockExamGradingAgent(api_key=OPENAI_API_KEY)
                 print("✅ Mock Exam Grading Agent initialized successfully")
         except Exception as e:
             print(f"❌ Error initializing grading agent: {e}")
+            import traceback
+            traceback.print_exc()
     else:
         print("⚠️  Grading agent not available - grading endpoints will be disabled")
 
