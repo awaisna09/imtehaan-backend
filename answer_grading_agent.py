@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 import logging
 
 # Load environment variables
-load_dotenv('grading_config.env')
+load_dotenv('config.env')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
