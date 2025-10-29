@@ -9,7 +9,7 @@ import json
 from typing import Dict, List
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+# from langchain.prompts import ChatPromptTemplate  # Not needed for simplified version
 from pydantic import BaseModel, Field
 import logging
 
@@ -70,19 +70,9 @@ class AnswerGradingAgent:
     def _setup_agent(self):
         """Setup the LangChain agent with tools and prompts"""
         
-        # Create a simple grading function that doesn't use tools
-        def grade_with_llm(input_text: str) -> str:
-            response = self.llm.invoke(input_text)
-            return response.content
-        
-        # Create the prompt template
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", self._get_system_prompt()),
-            ("human", "{input}")
-        ])
-        
-        # Create a simple chain instead of agent
-        self.agent_executor = self.llm.bind(prompt=prompt)
+        # Simplified setup - just use the LLM directly
+        # No need for complex prompt templates
+        pass
     
     def _get_system_prompt(self) -> str:
         """Get the system prompt for the grading agent"""
@@ -111,8 +101,11 @@ Always provide actionable feedback that helps students improve."""
         """Grade a student answer against the model answer"""
         
         try:
-            # Create the grading prompt
+            # Create the grading prompt with system context
+            system_prompt = self._get_system_prompt()
             grading_prompt = f"""
+            {system_prompt}
+            
             Please grade this Business Studies answer comprehensively:
             
             Question: {question}
