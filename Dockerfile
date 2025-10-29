@@ -19,4 +19,4 @@ ENV PORT=8000
 ENV HOST=0.0.0.0
 
 # Start the application
-CMD ["python", "start.py"]
+CMD ["python", "test-backend.py"]
