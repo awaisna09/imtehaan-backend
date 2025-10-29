@@ -1,1 +1,1 @@
-web: chmod +x start.sh && ./start.sh
+web: uvicorn unified_backend:app --host 0.0.0.0 --port $PORT
